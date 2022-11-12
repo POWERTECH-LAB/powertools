@@ -151,7 +151,7 @@ async function detectTypo(dicts) {
     document.getElementById("result_table").innerHTML = html;
   } else {
     document.getElementById("result_table").innerHTML =
-      " <tr><td>nothing</td> </tr>";
+      " <tr><td>empty</td> </tr>";
   }
 }
 
