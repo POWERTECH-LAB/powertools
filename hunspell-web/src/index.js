@@ -125,7 +125,6 @@ async function detectTypo(dicts) {
 
     progress_length++
     document.getElementById("progess_bar").style.width = ((progress_length/keys_length)*100) + "%"
-    console.log(progress_length)
     await sleep(5)
   }
 
@@ -182,6 +181,32 @@ document.getElementById("check_btn").addEventListener("click",  async function (
       parsed = true;
     }
   } catch (e) {}
+
+ try {
+    if (!parsed) {
+      let commentRegex = /^\/\/.*$/m
+      let str = json_text
+      if(json_text.match(commentRegex)){
+        str = str.replace(commentRegex,"");
+      }
+      let exportRegex = /^\s*export\s default\s+/
+
+      if (str.match(exportRegex)) {
+        str = str.replace(exportRegex, "json =");
+      }
+
+      let moduleExportRegex = /^\s*module\s*\.\s*exports\s*=/
+      if (str.match(moduleExportRegex)) {
+        str = str.replace(moduleExportRegex, "json =");
+      }
+    
+      eval(str)
+      parsed = true;
+    }
+  } catch (e) {
+      console.log(e)
+  }
+
 
   if (!parsed) {
     document.getElementById("alert_div").innerHTML =
