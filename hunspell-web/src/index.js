@@ -139,9 +139,12 @@ async function detectTypo(dicts,properNouns) {
             let suggested = [properNoun];
             resultMap.words.push({ word, suggested });
             break;
+          } else if (word == properNoun) {
+            isProperNoun = true 
+            break
           }
       }
-
+  
       if(isProperNoun)continue
 
 
