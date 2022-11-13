@@ -66,7 +66,10 @@ let ignoreRegex = [
   /^Params?$/,
   /^SSID$/gi,
   /^https$/gi,
+
   /^url$/gi,
+  /^Cashtag$/gi,
+  /^signup$/gi,
   /^(SEO|GST|USD|uuid|ROI|SMS|ETH|BTC)$/,
   /^(jpg|jpeg|gif|webp|png|mov|avi|mp4|wav|gifs)$/gi,
 ];
