@@ -77,7 +77,7 @@ let ignoreRegex = [
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-async function detectTypo(dicts) {
+async function detectTypo(dicts,properNouns) {
 
   SpellEngine.type = document.getElementById("engine_select").value
 
@@ -109,15 +109,7 @@ async function detectTypo(dicts) {
         words.push(token.value)
       }
     }
-    /**
-    let processSentence = sentence.replace(/\p{Emoji}/gu, "");
-    for (let regex of removeRegex) {
-      processSentence = processSentence.replace(regex, " ");
-    }
-    processSentence = processSentence.replace(/\s+/, " ");
 
-    let words = processSentence.split(/\s/);
-    */
     let incorrectSentence = false;
     let resultMap = { key: key, sentence: sentence, words: [] };
     for (let word of words) {
@@ -128,6 +120,21 @@ async function detectTypo(dicts) {
           break;
         }
       }
+  
+      let isProperNoun = false
+      for (let properNoun of properNouns) {
+          if(word.match(RegExp("^" + properNoun + "$","i")) && word != properNoun) {
+            incorrectSentence = true;
+            isProperNoun = true 
+            let suggested = [properNoun];
+            resultMap.words.push({ word, suggested });
+            break;
+          }
+      }
+
+      if(isProperNoun)continue
+
+
       if (word.length < 3) continue;
       if (ignore) continue;
 
@@ -241,6 +248,7 @@ document.getElementById("check_btn").addEventListener("click",  async function (
   } else {
     document.getElementById("alert_div").style.display = "none";
   }
-
-  await detectTypo(json);
+  
+  let properNouns = document.getElementById('proper_noun').value.split(/\s+/)
+  await detectTypo(json,properNouns);
 });

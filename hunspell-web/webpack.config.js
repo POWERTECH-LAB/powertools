@@ -2,9 +2,14 @@ const path = require('path');
 
 module.exports = {
   entry: ['@babel/polyfill','./src/index.js'],
+  mode: 'production',
   output: {
     filename: 'main.js',
     path: path.resolve(__dirname, 'dist'),
+  },
+  performance: {
+    maxEntrypointSize: 25000000,
+    maxAssetSize: 25000000,
   },
   module: {
     rules: [
