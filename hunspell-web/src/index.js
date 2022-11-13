@@ -1,9 +1,10 @@
 import _ from "lodash";
 var Spellchecker = require("hunspell-spellchecker");
-var spellchecker = new Spellchecker();
-
+//var spellchecker = new Spellchecker();
 import aff from "./dictionaries/chromium/en_US.aff";
 import dic from "./dictionaries/chromium/en_US.dic";
+
+var tokenizer = require( 'wink-tokenizer' );
 
 var nspell = require("nspell");
 var spell = nspell(aff, dic);
@@ -15,6 +16,7 @@ var DICT = spellchecker.parse({
 });
 spellchecker.use(DICT);
 
+let spellTokenizer = tokenizer();
 
 class SpellEngine {
   static type = "hunspell"
@@ -35,38 +37,38 @@ class SpellEngine {
 
 let removeRegex = [
   /\{\w+\}/gi,
-  /\s\d+\-day\s/gi,
-  /(\s|^)wi-fi(\s|$)/gi,
-  /(\s|^)ko-fi(\s|$)/gi,
-
-  /(\s|^)Asia\/[\w\-_]+(\s|$)/gi,
-  /(\s|^)America\/[\w\-_]+(\s|$)/gi,
-  /(\s|^)Europe\/[\w\-_]+(\s|$)/gi,
-  /(\s|^)Pacific\/[\w\-_]+(\s|$)/gi,
-  /\sWi\-Fi\s/gi,
+// /\s\d+\-day\s/gi,
+// /(\s|^)wi-fi(\s|$)/gi,
+// /(\s|^)ko-fi(\s|$)/gi,
+//
+// /(\s|^)Asia\/[\w\-_]+(\s|$)/gi,
+// /(\s|^)America\/[\w\-_]+(\s|$)/gi,
+// /(\s|^)Europe\/[\w\-_]+(\s|$)/gi,
+// /(\s|^)Pacific\/[\w\-_]+(\s|$)/gi,
+// /\sWi\-Fi\s/gi,
   /XXXXXXXXXX/gi,
   /XXXXXXX/gi,
-
-  /(\!|\&|,|\.|’|\?|'|"|“|”|\$|\)|\(|\{|\}|\:|\/|…|‘|>|<|;|=|:|\-)/gi,
-  /https?:\/\/.*?(\s|$)/gi,
+  ///(\!|\&|,|\.|’|\?|'|"|“|”|\$|\)|\(|\{|\}|\:|\/|…|‘|>|<|;|=|:|\-)/gi,
+  ///https?:\/\/.*?(\s|$)/gi,
 ];
 
 let ignoreRegex = [
+  /^n\'t$/gi,
+  /^\'ve$/gi,
+  /^\'re$/gi,
+  /^\'ll$/gi,
+  /^C24AMDAGD04ASEDAG3$/gi,
   /^\d+m$/gi,
   /^\d+mb$/gi,
   /^\d+gb$/gi,
   /^\d+px$/gi,
   /^\d+x\d+$/gi,
   /^Params?$/,
-  /^linkr$/gi,
-  /^https?$/gi,
-  /^(doesn|Didn)$/gi,
-  /America\/Puerto_Rico/,
-  /^Mailchimp$/gi,
-  /Mawson/gi,
-  /(SEO|GST|USD|uuid|ROI|SMS|ETH|BTC)/,
-  /(jpg|jpeg|gif|webp|png|mov|avi|mp4|wav)/gi,
-  /(Vimeo|Facebook|YouTube|Soundcloud|Spotify|Twitch|TikTok|Bing)/g,
+  /^SSID$/gi,
+  /^https$/gi,
+  /^url$/gi,
+  /^(SEO|GST|USD|uuid|ROI|SMS|ETH|BTC)$/,
+  /^(jpg|jpeg|gif|webp|png|mov|avi|mp4|wav|gifs)$/gi,
 ];
 
 function sleep(ms) {
@@ -90,6 +92,21 @@ async function detectTypo(dicts) {
   for (let key of keys) {
     let sentence = dicts[key];
   
+
+    let processSentence = sentence.replace(/\p{Emoji}/gu, "");
+
+    for (let regex of removeRegex) {
+      processSentence = processSentence.replace(regex, " ");
+    }
+
+    let tokens = spellTokenizer.tokenize(processSentence)
+    let words = []
+    for (let token of tokens) {
+      if(token.tag == "word"){
+        words.push(token.value)
+      }
+    }
+    /**
     let processSentence = sentence.replace(/\p{Emoji}/gu, "");
     for (let regex of removeRegex) {
       processSentence = processSentence.replace(regex, " ");
@@ -97,7 +114,7 @@ async function detectTypo(dicts) {
     processSentence = processSentence.replace(/\s+/, " ");
 
     let words = processSentence.split(/\s/);
-
+    */
     let incorrectSentence = false;
     let resultMap = { key: key, sentence: sentence, words: [] };
     for (let word of words) {
@@ -207,6 +224,10 @@ document.getElementById("check_btn").addEventListener("click",  async function (
       console.log(e)
   }
 
+  if (!parsed && json_text.trim() != "") {
+    json["sentence"] = json_text
+    parsed = true
+  }
 
   if (!parsed) {
     document.getElementById("alert_div").innerHTML =
