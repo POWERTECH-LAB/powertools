@@ -3,6 +3,10 @@ var Spellchecker = require("hunspell-spellchecker");
 import aff from "./dictionaries/chromium/en_US.aff";
 import dic from "./dictionaries/chromium/en_US.dic";
 
+
+var Typo = require("typo-js");
+var typoJs = new Typo( "en_US", aff,dic);
+
 var tokenizer = require( 'wink-tokenizer' );
 
 var nspell = require("nspell");
@@ -23,12 +27,16 @@ class SpellEngine {
   static check(word) {
     if(this.type == "nspell") {
       return spell.correct(word)
+    } else if (this.type=="typo-js") {
+      return typoJs.check(word)
     }
     return spellchecker.check(word)
   } 
   static suggest(word) {
     if(this.type == "nspell") {
       return spell.suggest(word)
+    } else if (this.type=="typo-js") {
+      return typoJs.suggest(word)
     }
     return spellchecker.suggest(word)
   }
