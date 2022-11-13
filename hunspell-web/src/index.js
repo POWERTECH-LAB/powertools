@@ -1,4 +1,3 @@
-import _ from "lodash";
 var Spellchecker = require("hunspell-spellchecker");
 //var spellchecker = new Spellchecker();
 import aff from "./dictionaries/chromium/en_US.aff";
@@ -58,6 +57,7 @@ let ignoreRegex = [
   /^\'re$/gi,
   /^\'ll$/gi,
   /^C24AMDAGD04ASEDAG3$/gi,
+  /^CAMDAGDASEDAG$/gi,
   /^\d+m$/gi,
   /^\d+mb$/gi,
   /^\d+gb$/gi,
@@ -94,7 +94,9 @@ async function detectTypo(dicts,properNouns) {
 
   for (let key of keys) {
     let sentence = dicts[key];
-  
+    if(typeof(sentence) != "string") {
+      sentence = JSON.stringify(sentence)
+    }
 
     let processSentence = sentence.replace(/\p{Emoji}/gu, "");
 
@@ -152,7 +154,7 @@ async function detectTypo(dicts,properNouns) {
 
     progress_length++
     document.getElementById("progess_bar").style.width = ((progress_length/keys_length)*100) + "%"
-    await sleep(5)
+    await sleep(2)
   }
 
   if (suggestions.length > 0) {
@@ -178,7 +180,7 @@ async function detectTypo(dicts,properNouns) {
     document.getElementById("result_table").innerHTML = html;
   } else {
     document.getElementById("result_table").innerHTML =
-      " <tr><td>empty</td> </tr>";
+      " <tr><td>Seems Good</td> </tr>";
   }
 }
 
