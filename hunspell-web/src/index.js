@@ -2,7 +2,8 @@ var Spellchecker = require("hunspell-spellchecker");
 //var spellchecker = new Spellchecker();
 import aff from "./dictionaries/chromium/en_US.aff";
 import dic from "./dictionaries/chromium/en_US.dic";
-
+import proper_nouns_dic from "./dictionaries/proper_nouns.dic";
+let proper_nouns = proper_nouns_dic.split(/\s+/)
 
 var Typo = require("typo-js");
 var typoJs = new Typo( "en_US", aff,dic);
@@ -106,12 +107,29 @@ async function detectTypo(dicts,properNouns) {
       sentence = JSON.stringify(sentence)
     }
 
+  
     let processSentence = sentence.replace(/\p{Emoji}/gu, "");
+    processSentence = processSentence.replace(/<\/?(span|br|head|body)\s+.*?>/gu, "");
+
+    for(let proper_noun of proper_nouns) {
+      let p  = proper_noun.trim().replace("\n","").replace('/','\/')
+      processSentence = processSentence.replace(new RegExp(`(\\s+|^)${p}(\\s+|$)`)," ")
+
+   //  if(key == "America_Araguaina") {
+   //    console.log(`(\\s+|^)${p}(\\s+|$)`)
+   //    console.log(processSentence)
+   //  }
+    }
+   //if(key == "America_Araguaina") {
+   //  console.log(processSentence)
+   //  break;
+   //}
 
     for (let regex of removeRegex) {
       processSentence = processSentence.replace(regex, " ");
     }
-
+  
+    
     let tokens = spellTokenizer.tokenize(processSentence)
     let words = []
     for (let token of tokens) {
